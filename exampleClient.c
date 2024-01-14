@@ -53,14 +53,22 @@ int main() {
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
     /* send a message to the server */
-    printf("Sending message to server: %s",MESSAGE);
+    printf("Sending message to server: %s",(char)strtol(MESSAGE, NULL, 16));
     // printf("%s",package_message(MESSAGE));
-    if (sendto(clientSocket, MESSAGE, strlen(MESSAGE), 0,
+
+    uint8_t tmp[] = {0,9,0,0,7,6,0,4,6,8,6,9,1,8,9,2};
+
+    uint8_t *message = (uint8_t *)malloc(sizeof(uint8_t) * 16);
+    for(int i = 0; i < sizeof(tmp); i++){
+        message[i] = tmp[i];
+    }
+    
+    if (sendto(clientSocket, message, sizeof(message), 0,
             (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
         perror("sendto failed");
         return 0;
     }
-
+    free(message);
     /* Receive message from server */
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
 
@@ -109,7 +117,7 @@ void unpackage_message(char message[]){
 
     printf("Message Recieved:\n");
     char version[2] = {hexString[0], hexString[1]};
-    printf("RHP Version: %i", (int)version);
+    printf("RHP Version: %i\n", (int)version);
 
     int length = 4;
     //print payload
@@ -127,23 +135,6 @@ void unpackage_message(char message[]){
 }
 
 
-
-// uint16_t checkSum(char[] message, int size) {
-//     uint16_t runningSum = 0;
-//     uint16_t previousSum = 0;
-
-//     //Summing in chunks of 16 bits
-//     for(int i  = 0; i < sizeof(message); i = i + 16) {
-//         runningSum += getString(message[i]);
-//         if(previousSum > runningSum) { //Checking if there was overflow, and add one if so. (This is done for it)
-//             runningSum++;
-//         }
-//         previousSum = runningSum;
-//     }
-
-//     runingSum = ~runningSum; //Bitwise not
-//     return runningSum;
-// }
 
 int getTwo(char message[], int index) {
     char tmp[17]; // Increase size to 17 to include space for null terminator
@@ -171,4 +162,4 @@ int checkSum(char message[], int size) {
 
     runningSum = ~runningSum; // Bitwise not
     return runningSum;
-}=
+}

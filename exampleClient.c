@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #define SERVER "137.112.38.47"
 #define MESSAGE "0900760468691892"
@@ -143,3 +144,31 @@ void unpackage_message(char message[]){
 //     runingSum = ~runningSum; //Bitwise not
 //     return runningSum;
 // }
+
+int getTwo(char message[], int index) {
+    char tmp[17]; // Increase size to 17 to include space for null terminator
+
+    for (int i = 0; i < 16; i++) {
+        tmp[i] = message[index + i];
+    }
+    tmp[16] = '\0'; // Null-terminate the string
+
+    return (int)strtol(tmp, NULL, 2);
+}
+
+int checkSum(char message[], int size) {
+    uint16_t runningSum = 0;
+    uint16_t previousSum = 0;
+
+    // Summing in chunks of 16 bits
+    for (int i = 0; i < size; i = i + 16) {
+        runningSum += getTwo(message, i);
+        if (previousSum > runningSum) {
+            runningSum++;
+        }
+        previousSum = runningSum;
+    }
+
+    runningSum = ~runningSum; // Bitwise not
+    return runningSum;
+}=

@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 #define SERVER "137.112.38.47"
-#define MESSAGE "0900760468691892"
+// #define MESSAGE "0900760468691892"
 #define PORT 2324
 #define BUFSIZE 1024
 // #define VERSION 9
@@ -53,22 +53,34 @@ int main() {
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
     /* send a message to the server */
-    printf("Sending message to server: %s",(char)strtol(MESSAGE, NULL, 16));
+    // printf("Sending message to server: %s",(char)strtol(MESSAGE, NULL, 16));
     // printf("%s",package_message(MESSAGE));
 
     uint8_t tmp[] = {0,9,0,0,7,6,0,4,6,8,6,9,1,8,9,2};
 
-    uint8_t *message = (uint8_t *)malloc(sizeof(uint8_t) * 16);
-    for(int i = 0; i < sizeof(tmp); i++){
-        message[i] = tmp[i];
+    int dataSize = sizeof(tmp);
+    // Calculate the size needed for the ASCII representation
+    size_t asciiSize = dataSize * 2; // Two ASCII characters per byte
+
+    // Allocate memory for the ASCII representation
+    char asciiData[asciiSize + 1]; // +1 for null terminator
+
+    // Convert each byte to ASCII
+    for (size_t i = 0; i < dataSize; ++i) {
+        sprintf(&asciiData[i * 2], "%02X", tmp[i]); // Use %02X to get two-digit hex representation
     }
-    
-    if (sendto(clientSocket, message, sizeof(message), 0,
+
+    printf("%s",asciiData);
+
+    // Null terminate the ASCII string
+    // asciiData[asciiSize] = '\0';
+
+    if (sendto(clientSocket, asciiData, strlen(asciiData), 0,
             (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
         perror("sendto failed");
         return 0;
     }
-    free(message);
+    // free(message);
     /* Receive message from server */
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
 

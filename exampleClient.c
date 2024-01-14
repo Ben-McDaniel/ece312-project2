@@ -124,7 +124,7 @@ void unpackage_message(char message[]){
     //dont need to copy the buffer into new place?
     // size_t length = strlen(message);
     // char* result = (char*)malloc((length + 1) * sizeof(char));
-    int bufferSize = sizeof(message) / sizeof(message[0]);
+    int bufferSize = sizeof(message) * 6 -1;
 
     // Convert the buffer to a hex string
     char* hexString = bufferToHexString(message, bufferSize);
@@ -132,7 +132,7 @@ void unpackage_message(char message[]){
 
     printf("Message Recieved:\n");
     char version[2] = {hexString[0], hexString[1]};
-    printf("RHP Version: %i\n", (int)version);
+    printf("RHP Version: %02X\n", (int)version);
 
     int length = 4;
     //print payload

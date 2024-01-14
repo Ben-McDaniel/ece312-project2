@@ -57,6 +57,9 @@ int main() {
     // printf("%s",package_message(MESSAGE));
 
     uint8_t tmp[] = {0,9,0,0,7,6,0,4,6,8,6,9,1,8,9,2};
+    // uint8_t tmp[] = {2,9,8,1,9,6,8,6,4,0,6,7,0,0,9,0};
+
+    
 
     int dataSize = sizeof(tmp);
     // Calculate the size needed for the ASCII representation

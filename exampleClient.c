@@ -6,11 +6,15 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define SERVER "137.112.38.47"
 #define MESSAGE "hello there"
 #define PORT 2324
 #define BUFSIZE 1024
+#define VERSION 9
+#define commID_RHMP 0x1874
+#define commID_CTLMSG 118
 
 int main() {
     int clientSocket, nBytes;
@@ -48,6 +52,8 @@ int main() {
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
     /* send a message to the server */
+    printf("Sending message to server: %s",MESSAGE);
+    // printf("%s",package_message(MESSAGE));
     if (sendto(clientSocket, MESSAGE, strlen(MESSAGE), 0,
             (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
         perror("sendto failed");
@@ -58,8 +64,82 @@ int main() {
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
 
     printf("Received from server: %s\n", buffer);
-
+    unpackage_message(buffer);
 
     close(clientSocket);
     return 0;
+}
+
+char* package_message(char* message){
+    return message;
+}
+
+
+
+char* bufferToHexString(char* buffer, int bufferSize) {
+    // Calculate the length needed for the result array
+    int resultSize = bufferSize * 2 + 1;  // Each byte requires 2 characters, plus one for the null terminator
+
+    // Allocate memory for the result array
+    char *result = (char*)malloc(resultSize * sizeof(char));
+
+    // Convert each byte to hex and store in the result array
+    for (int i = 0; i < bufferSize; i++) {
+        sprintf(result + i * 2, "%02X", buffer[i]);
+    }
+
+    // Add null terminator
+    result[resultSize - 1] = '\0';
+
+    return result;
+}
+
+
+
+void unpackage_message(char message[]){
+    //dont need to copy the buffer into new place?
+    // size_t length = strlen(message);
+    // char* result = (char*)malloc((length + 1) * sizeof(char));
+    int bufferSize = sizeof(message) / sizeof(message[0]);
+
+    // Convert the buffer to a hex string
+    char* hexString = bufferToHexString(message, bufferSize);
+    printf("Hex string: %s\n", hexString);
+
+    printf("Message Recieved:\n");
+    char version[2] = {hexString[0], hexString[1]};
+    printf("RHP Version: %i", (int)version);
+
+    int length = 4;
+    //print payload
+    for(int i = 8; i < 8+length; i+=2){
+        // printf("%s",(char)hexString[i]);
+        char hexPair[2] = {hexString[i], hexString[i + 1]};
+        char asciiChar = strtol(hexPair, NULL, 16);
+
+        // Print the ASCII character
+        // printf("%c", (char)hexPair);
+        // printf("%ld", asciiChar);
+        printf("%c",(char)asciiChar);
+    }
+    free(hexString);
+}
+
+
+
+uint16_t checkSum(char[] message, int size) {
+    uint16_t runningSum = 0;
+    uint16_t previousSum = 0;
+
+    //Summing in chunks of 16 bits
+    for(int i  = 0; i < sizeof(message); i = i + 16) {
+        runningSum += getString(message[i]);
+        if(previousSum > runningSum) { //Checking if there was overflow, and add one if so. (This is done for it)
+            runningSum++;
+        }
+        previousSum = runningSum;
+    }
+
+    runingSum = ~runningSum; //Bitwise not
+    return runningSum;
 }

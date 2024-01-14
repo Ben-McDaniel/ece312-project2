@@ -9,12 +9,12 @@
 #include <stdlib.h>
 
 #define SERVER "137.112.38.47"
-#define MESSAGE "hello there"
+#define MESSAGE "0900760468691892"
 #define PORT 2324
 #define BUFSIZE 1024
-#define VERSION 9
-#define commID_RHMP 0x1874
-#define commID_CTLMSG 118
+// #define VERSION 9
+// #define commID_RHMP 0x1874
+// #define commID_CTLMSG 118
 
 int main() {
     int clientSocket, nBytes;
@@ -127,19 +127,19 @@ void unpackage_message(char message[]){
 
 
 
-uint16_t checkSum(char[] message, int size) {
-    uint16_t runningSum = 0;
-    uint16_t previousSum = 0;
+// uint16_t checkSum(char[] message, int size) {
+//     uint16_t runningSum = 0;
+//     uint16_t previousSum = 0;
 
-    //Summing in chunks of 16 bits
-    for(int i  = 0; i < sizeof(message); i = i + 16) {
-        runningSum += getString(message[i]);
-        if(previousSum > runningSum) { //Checking if there was overflow, and add one if so. (This is done for it)
-            runningSum++;
-        }
-        previousSum = runningSum;
-    }
+//     //Summing in chunks of 16 bits
+//     for(int i  = 0; i < sizeof(message); i = i + 16) {
+//         runningSum += getString(message[i]);
+//         if(previousSum > runningSum) { //Checking if there was overflow, and add one if so. (This is done for it)
+//             runningSum++;
+//         }
+//         previousSum = runningSum;
+//     }
 
-    runingSum = ~runningSum; //Bitwise not
-    return runningSum;
-}
+//     runingSum = ~runningSum; //Bitwise not
+//     return runningSum;
+// }

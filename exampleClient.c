@@ -56,29 +56,12 @@ int main() {
     // printf("Sending message to server: %s",(char)strtol(MESSAGE, NULL, 16));
     // printf("%s",package_message(MESSAGE));
 
-    uint8_t tmp[] = {0,9,0,0,7,6,0,4,6,8,6,9,1,8,9,2};
-    // uint8_t tmp[] = {2,9,8,1,9,6,8,6,4,0,6,7,0,0,9,0};
 
+    //hard coded message for milestone 1
+    uint8_t tmp[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
     
 
-    int dataSize = sizeof(tmp);
-    // Calculate the size needed for the ASCII representation
-    size_t asciiSize = dataSize * 2; // Two ASCII characters per byte
-
-    // Allocate memory for the ASCII representation
-    char asciiData[asciiSize + 1]; // +1 for null terminator
-
-    // Convert each byte to ASCII
-    for (size_t i = 0; i < dataSize; ++i) {
-        sprintf(&asciiData[i * 2], "%02X", tmp[i]); // Use %02X to get two-digit hex representation
-    }
-
-    printf("%s",asciiData);
-
-    // Null terminate the ASCII string
-    // asciiData[asciiSize] = '\0';
-
-    if (sendto(clientSocket, asciiData, strlen(asciiData), 0,
+    if (sendto(clientSocket, tmp, sizeof(tmp), 0,
             (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
         perror("sendto failed");
         return 0;
@@ -89,6 +72,7 @@ int main() {
 
     printf("Received from server: %s\n", buffer);
     unpackage_message(buffer);
+    displayReceived(buffer, sizeof(buffer));
 
     close(clientSocket);
     return 0;
@@ -101,18 +85,15 @@ char* package_message(char* message){
 
 
 char* bufferToHexString(char* buffer, int bufferSize) {
-    // Calculate the length needed for the result array
-    int resultSize = bufferSize * 2 + 1;  // Each byte requires 2 characters, plus one for the null terminator
+    int resultSize = bufferSize * 2 + 1; 
 
-    // Allocate memory for the result array
     char *result = (char*)malloc(resultSize * sizeof(char));
 
-    // Convert each byte to hex and store in the result array
     for (int i = 0; i < bufferSize; i++) {
         sprintf(result + i * 2, "%02X", buffer[i]);
     }
 
-    // Add null terminator
+
     result[resultSize - 1] = '\0';
 
     return result;
@@ -124,7 +105,7 @@ void unpackage_message(char message[]){
     //dont need to copy the buffer into new place?
     // size_t length = strlen(message);
     // char* result = (char*)malloc((length + 1) * sizeof(char));
-    int bufferSize = sizeof(message) * 6 -1;
+    int bufferSize = sizeof(message) * 10 -1;
 
     // Convert the buffer to a hex string
     char* hexString = bufferToHexString(message, bufferSize);
@@ -135,15 +116,11 @@ void unpackage_message(char message[]){
     printf("RHP Version: %02X\n", (int)version);
 
     int length = 4;
-    //print payload
     for(int i = 8; i < 8+length; i+=2){
-        // printf("%s",(char)hexString[i]);
         char hexPair[2] = {hexString[i], hexString[i + 1]};
         char asciiChar = strtol(hexPair, NULL, 16);
 
-        // Print the ASCII character
-        // printf("%c", (char)hexPair);
-        // printf("%ld", asciiChar);
+
         printf("%c",(char)asciiChar);
     }
     free(hexString);
@@ -152,12 +129,12 @@ void unpackage_message(char message[]){
 
 
 int getTwo(char message[], int index) {
-    char tmp[17]; // Increase size to 17 to include space for null terminator
+    char tmp[17]; //+1 for /0
 
     for (int i = 0; i < 16; i++) {
         tmp[i] = message[index + i];
     }
-    tmp[16] = '\0'; // Null-terminate the string
+    tmp[16] = '\0';
 
     return (int)strtol(tmp, NULL, 2);
 }
@@ -166,7 +143,6 @@ int checkSum(char message[], int size) {
     uint16_t runningSum = 0;
     uint16_t previousSum = 0;
 
-    // Summing in chunks of 16 bits
     for (int i = 0; i < size; i = i + 16) {
         runningSum += getTwo(message, i);
         if (previousSum > runningSum) {
@@ -175,6 +151,39 @@ int checkSum(char message[], int size) {
         previousSum = runningSum;
     }
 
-    runningSum = ~runningSum; // Bitwise not
+    runningSum = ~runningSum;
     return runningSum;
+}
+
+
+void displayReceived(char* message, int bufferSize) {
+    char parseVersion[8];
+    char parseCommID[16];
+    char parseLength[7];
+    char parseCheckSum[16];
+
+    for(int i = 0; i < 8; i++) { //For version (bits 0-7)
+        parseVersion[i] = message[i];
+    }
+    for(int i = 8; i < 24; i++) { //For commID (bits 8-23)
+        parseCommID[i - 8] = message[i];
+    }
+    for(int i = 24; i < 31; i++) { //For length (of payload) (bits 24-30)
+        parseLength[i - 24] = message[i];
+    }
+    int parseLengthInt = (int)strtol(parseLength, NULL, 16); //Converting the char[<hex>] to long, to int
+    char parsePayload[parseLengthInt];
+    for(int i = 32; i < 31 + parseLength; i++) { //For payload (bits 32 - (31 + length))
+        parsePayload[i - 32] = message[i];
+    }
+    for(int i = bufferSize - 16; i < bufferSize; i++) { //For checksum (last 16 bits)
+        parseCheckSum[i - bufferSize - 16] = message[i];
+    }
+
+    int parseVersionInt = strtol(parseVersion, NULL, 16);
+    int parseCommIDInt = strtol(parseCommID, NULL, 16);
+    int parseCheckSumInt = strtol(parseCheckSum, NULL, 16);
+    int parsePayloadInt = strtol(parsePayload, NULL, 16);
+
+    printf("Message Received:\nRHP Verion: %d\nCommID: %d\nlength: %d\nchecksum: 0x%x", parseVersionInt, parseCommIDInt, parseLengthInt, parseCheckSumInt);
 }

@@ -187,3 +187,206 @@ void displayReceived(char* message, int bufferSize) {
 
     printf("Message Received:\nRHP Verion: %d\nCommID: %d\nlength: %d\nchecksum: 0x%x", parseVersionInt, parseCommIDInt, parseLengthInt, parseCheckSumInt);
 }
+
+int pow(int x, int y) {
+    int result = x;
+    for(int i = 1; i < y; i++) {
+        result = x * x;
+    }
+    return result;
+}
+
+int arrayToInt(int* list) {
+    int sum = 0;
+    for(int i = 0; i < 7; i++) {
+        sum = sum + list[i] * pow(2, 7 - i);
+    }
+    return sum;
+}
+
+int* hexToBinary(char* hexString) {
+    int* list = (int*)malloc(8 * sizeof(int)); // Dynamically allocate memory
+    switch(hexString[0]) {
+        case('0'):
+            //Already 0
+            break;
+        case('1'):
+            list[3] = 1;
+            break;
+        case('2'):
+            list[2] = 1;
+            break;
+        case('3'):
+            list[3] = 1;
+            list[2] = 1;
+            break;
+        case('4'):
+            list[1] = 1;
+            break;
+        case('5'):
+            list[1] = 1;
+            list[3] = 1;
+            break;
+        case('6'):
+            list[1] = 1;
+            list[2] = 1;
+            break;
+        case('7'):
+            list[1] = 1;
+            list[2] = 1;
+            list[3] = 1;
+            break;
+        case('8'):
+            list[0] = 1;
+            break;
+        case('9'):
+            list[0] = 1;
+            list[3] = 1;
+            break;
+        case('A'):
+            list[0] = 1;
+            list[2] = 1;
+            break;
+        case('B'):
+            list[0] = 1;
+            list[2] = 1;
+            list[3] = 1;
+            break;
+        case('C'):
+            list[0] = 1;
+            list[1] = 1;
+            break;
+        case('D'):
+            list[0] = 1;
+            list[1] = 1;
+            list[3] = 1;
+            break;
+        case('E'):
+            list[0] = 1;
+            list[1] = 1;
+            list[2] = 1;
+            break;
+        case('F'):
+            list[0] = 1;
+            list[1] = 1;
+            list[2] = 1;
+            list[3] = 1;
+            break;
+        default:
+            break;
+    }
+
+    switch(hexString[1]) {
+        case('0'):
+            //Already 0
+            break;
+        case('1'):
+            list[7] = 1;
+            break;
+        case('2'):
+            list[6] = 1;
+            break;
+        case('3'):
+            list[7] = 1;
+            list[6] = 1;
+            break;
+        case('4'):
+            list[5] = 1;
+            break;
+        case('5'):
+            list[5] = 1;
+            list[7] = 1;
+            break;
+        case('6'):
+            list[5] = 1;
+            list[6] = 1;
+            break;
+        case('7'):
+            list[5] = 1;
+            list[6] = 1;
+            list[7] = 1;
+            break;
+        case('8'):
+            list[4] = 1;
+            break;
+        case('9'):
+            list[4] = 1;
+            list[7] = 1;
+            break;
+        case('A'):
+            list[4] = 1;
+            list[6] = 1;
+            break;
+        case('B'):
+            list[4] = 1;
+            list[6] = 1;
+            list[7] = 1;
+            break;
+        case('C'):
+            list[4] = 1;
+            list[5] = 1;
+            break;
+        case('D'):
+            list[4] = 1;
+            list[5] = 1;
+            list[7] = 1;
+            break;
+        case('E'):
+            list[4] = 1;
+            list[5] = 1;
+            list[6] = 1;
+            break;
+        case('F'):
+            list[4] = 1;
+            list[5] = 1;
+            list[6] = 1;
+            list[7] = 1;
+            break;
+        default:
+            break;
+    }
+    return list;
+}
+
+int hexStringtoInteger(char* hexString, int stringLength) {
+    return 0;
+}
+
+void displayReceived(char* hexString, int stringLength) {
+    printf("\n===========================================================");
+    printf("\n      Beginning to display the incoming message!\n");
+
+    //Start: Getting the hexString broken into the different parts
+    char charVersion[2];
+    char charcommID[4];
+    char charlengthType[2];
+    char charCheckSum[2];
+
+    charVersion[0] = hexString[0]; 
+    charVersion[1] = hexString[1];
+
+    charcommID[0] = hexString[2];
+    charcommID[1] = hexString[3];
+    charcommID[2] = hexString[4];
+    charcommID[3] = hexString[5];
+    
+    charlengthType[0] = hexString[6];
+    charlengthType[1] = hexString[7];
+    
+    charCheckSum[0] = hexString[stringLength - 2];
+    charCheckSum[1] = hexString[stringLength - 1];
+
+    //Finding the length of the payload
+    int length = arrayToInt(hexToBinary(charlengthType));
+    int type = hexToBinary(charlengthType)[7];
+    //STOP: Getting the hexString broken into the different parts
+    printf("length: %d\n", length);
+    printf("Version: %s\n", charVersion);
+    printf("CommID: %s\n", charcommID);
+    printf("LengthType: %s\n", charlengthType);
+
+
+    
+
+    printf("\n===========================================================");
+}

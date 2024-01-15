@@ -331,6 +331,10 @@ void displayReceived(char* hexString, int stringLength) {
     char charlengthType[2];
     char charCheckSum[2];
 
+    for(int i = 0; i < stringLength-3; i++){
+        printf("%c",hexString[i]);
+    }
+
     charVersion[0] = hexString[0]; 
     charVersion[1] = hexString[1];
 
@@ -380,11 +384,11 @@ void displayReceived(char* hexString, int stringLength) {
 
     printf("\nMessage Checksum: ");
 
-    char hexPairc[4] = {'0','x',hexString[32+length], charcommID[32+length+1]};
-    int c = strtol(hexPairb, NULL, 16)<<2;
+    char hexPairc[4] = {'0','x',hexString[stringLength-7], hexString[stringLength-6]};
+    int c = strtol(hexPairc, NULL, 16)<<4;
 
-    char hexPaird[4] = {'0','x',hexString[32+length+2], charcommID[32+length+3]};
-    int d = strtol(hexPairb, NULL, 16);
+    char hexPaird[4] = {'0','x',hexString[stringLength-5], hexString[stringLength-4]};
+    int d = strtol(hexPaird, NULL, 16);
 
     int cSum = c+d;
     printf("%d\n",cSum);

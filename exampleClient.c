@@ -349,14 +349,24 @@ void displayReceived(char* hexString, int stringLength) {
     int length = arrayToInt(hexToBinary(charlengthType));
     int type = hexToBinary(charlengthType)[7];
     //STOP: Getting the hexString broken into the different parts
-    printf("length: %d\n", length);
-    printf("Type: %d\n", type);
     printf("Version: %s\n", charVersion);
     printf("CommID: %s\n", charcommID);
+    printf("length: %d\n", length);
+    printf("Type: %d\n", type);
     printf("LengthType: %s\n", charlengthType);
 
 
+    printf("Payload: ");
+
+    for(int i = 4; i < 32+(length+8); i+=2){
+
+        char hexPair[4] = {'0','x',hexString[i], hexString[i + 1]};
+        char asciiChar = strtol(hexPair, NULL, 16);
+
+        printf("%c",(char)asciiChar);
+    }
+
     
 
-    printf("===========================================================\n");
+    printf("\n===========================================================\n");
 }

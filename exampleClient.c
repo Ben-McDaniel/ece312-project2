@@ -392,6 +392,9 @@ void displayReceived(char* hexString, int stringLength) {
 
     int cSum = c+d;
     printf("%d\n",cSum);
+    
+    int calculatedCheckSum = checkSum(hexString, stringLength-8);
+    printf("\n\n%d\n\n",calculatedCheckSum);
 
     printf("===========================================================\n");
 }

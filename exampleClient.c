@@ -155,12 +155,14 @@ int checkSum(char message[], int size) {
     return runningSum;
 }
 
-int pow(int x, int y) {
-    int result = x;
-    for(int i = 1; i < y; i++) {
-        result = x * x;
+int pow(int x,int y) {
+    int tmp = 1;
+
+    for (int i = 0; i < y; i++) {
+        tmp = tmp * x;
     }
-    return result;
+
+    return tmp;
 }
 
 int arrayToInt(int* list) {

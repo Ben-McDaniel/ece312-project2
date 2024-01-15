@@ -72,7 +72,6 @@ int main() {
 
     printf("Received from server: %s\n", buffer);
     unpackage_message(buffer);
-    displayReceived(buffer, sizeof(buffer));
 
     close(clientSocket);
     return 0;
@@ -123,6 +122,7 @@ void unpackage_message(char message[]){
 
         printf("%c",(char)asciiChar);
     }
+    displayReceived(hexString, bufferSize);
     free(hexString);
 }
 
@@ -153,39 +153,6 @@ int checkSum(char message[], int size) {
 
     runningSum = ~runningSum;
     return runningSum;
-}
-
-
-void displayReceived(char* message, int bufferSize) {
-    char parseVersion[8];
-    char parseCommID[16];
-    char parseLength[7];
-    char parseCheckSum[16];
-
-    for(int i = 0; i < 8; i++) { //For version (bits 0-7)
-        parseVersion[i] = message[i];
-    }
-    for(int i = 8; i < 24; i++) { //For commID (bits 8-23)
-        parseCommID[i - 8] = message[i];
-    }
-    for(int i = 24; i < 31; i++) { //For length (of payload) (bits 24-30)
-        parseLength[i - 24] = message[i];
-    }
-    int parseLengthInt = (int)strtol(parseLength, NULL, 16); //Converting the char[<hex>] to long, to int
-    char parsePayload[parseLengthInt];
-    for(int i = 32; i < 31 + parseLength; i++) { //For payload (bits 32 - (31 + length))
-        parsePayload[i - 32] = message[i];
-    }
-    for(int i = bufferSize - 16; i < bufferSize; i++) { //For checksum (last 16 bits)
-        parseCheckSum[i - bufferSize - 16] = message[i];
-    }
-
-    int parseVersionInt = strtol(parseVersion, NULL, 16);
-    int parseCommIDInt = strtol(parseCommID, NULL, 16);
-    int parseCheckSumInt = strtol(parseCheckSum, NULL, 16);
-    int parsePayloadInt = strtol(parsePayload, NULL, 16);
-
-    printf("Message Received:\nRHP Verion: %d\nCommID: %d\nlength: %d\nchecksum: 0x%x", parseVersionInt, parseCommIDInt, parseLengthInt, parseCheckSumInt);
 }
 
 int pow(int x, int y) {

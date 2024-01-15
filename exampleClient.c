@@ -350,6 +350,7 @@ void displayReceived(char* hexString, int stringLength) {
     int type = hexToBinary(charlengthType)[7];
     //STOP: Getting the hexString broken into the different parts
     printf("length: %d\n", length);
+    printf("Type: %d\n", type);
     printf("Version: %s\n", charVersion);
     printf("CommID: %s\n", charcommID);
     printf("LengthType: %s\n", charlengthType);
@@ -357,5 +358,5 @@ void displayReceived(char* hexString, int stringLength) {
 
     
 
-    printf("\n===========================================================");
+    printf("===========================================================\n");
 }

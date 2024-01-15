@@ -353,10 +353,17 @@ void displayReceived(char* hexString, int stringLength) {
     char hexPair[4] = {'0','x',charVersion[0], charVersion[1]};
     int version = strtol(hexPair, NULL, 16);
     printf("Version: %d\n", version);
-    printf("CommID: %s\n", charcommID);
+
+    char hexPairA[4] = {'0','x',charcommID[0], charcommID[1]};
+    int a = strtol(hexPairA, NULL, 16);
+
+    char hexPairb[4] = {'0','x',charcommID[2], charcommID[3]};
+    int b = strtol(hexPairb, NULL, 16);
+
+    printf("CommID: ");
+    printf("%d%d\n",a,b);
     printf("length: %d\n", length);
     printf("Type: %d\n", type);
-    printf("LengthType: %s\n", charlengthType);
 
 
     printf("Payload: ");

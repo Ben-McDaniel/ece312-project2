@@ -376,7 +376,18 @@ void displayReceived(char* hexString, int stringLength) {
         printf("%c",(char)asciiChar);
     }
 
-    
 
-    printf("\n===========================================================\n");
+
+    printf("\nMessage Checksum: ");
+
+    char hexPairc[4] = {'0','x',hexString[32+length], charcommID[32+length+1]};
+    int c = strtol(hexPairb, NULL, 16)<<2;
+
+    char hexPaird[4] = {'0','x',hexString[32+length+2], charcommID[32+length+3]};
+    int d = strtol(hexPairb, NULL, 16);
+
+    int cSum = c+d;
+    printf("%d\n",cSum);
+
+    printf("===========================================================\n");
 }

@@ -70,7 +70,7 @@ int main() {
     /* Receive message from server */
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
 
-    printf("Received from server: %s\n", buffer);
+    // printf("Received from server: %s\n", buffer);
     unpackage_message(buffer);
 
     close(clientSocket);
@@ -108,11 +108,11 @@ void unpackage_message(char message[]){
 
     // Convert the buffer to a hex string
     char* hexString = bufferToHexString(message, bufferSize);
-    printf("Hex string: %s\n", hexString);
+    // printf("Hex string: %s\n", hexString);
 
-    printf("Message Recieved:\n");
+    // printf("Message Recieved:\n");
     char version[2] = {hexString[0], hexString[1]};
-    printf("RHP Version: %02X\n", (int)version);
+    // printf("RHP Version: %02X\n", (int)version);
 
     int length = 4;
     for(int i = 8; i < 8+length; i+=2){
@@ -120,7 +120,7 @@ void unpackage_message(char message[]){
         char asciiChar = strtol(hexPair, NULL, 16);
 
 
-        printf("%c",(char)asciiChar);
+        // printf("%c",(char)asciiChar);
     }
     displayReceived(hexString, bufferSize);
     free(hexString);

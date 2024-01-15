@@ -143,8 +143,11 @@ int checkSum(char message[], int size) {
     uint16_t runningSum = 0;
     uint16_t previousSum = 0;
 
-    for (int i = 0; i < size; i = i + 16) {
-        runningSum += getTwo(message, i);
+    for (int i = 0; i < size; i = i + 4) {
+        // runningSum += getTwo(message, i);
+        char tmp[4] = {'0','x', message[i], message[i+1]};
+        char tmp2[4] = {'0','x', message[i+2], message[i+3]};
+        runningSum += strtol(tmp, NULL, 16)<<8 + strtol(tmp2, NULL, 16);
         if (previousSum > runningSum) {
             runningSum++;
         }
@@ -393,7 +396,7 @@ void displayReceived(char* hexString, int stringLength) {
     int cSum = c+d;
     printf("%d\n",cSum);
     
-    int calculatedCheckSum = checkSum(hexString, stringLength-8);
+    int calculatedCheckSum = checkSum(hexString, stringLength-4);
     printf("\n\n%d\n\n",calculatedCheckSum);
 
     printf("===========================================================\n");

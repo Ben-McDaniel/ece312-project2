@@ -17,6 +17,10 @@
 // #define commID_RHMP 0x1874
 // #define commID_CTLMSG 118
 
+uint16_t fixed_checksum(char* buffer, int nBytes);
+void displayMessage(char* buffer, int nBytes);
+void printPayload(char* buffer, int length);
+
 int main() {
     int clientSocket, nBytes;
     char buffer[BUFSIZE];
@@ -58,50 +62,90 @@ int main() {
 
 
     //hard coded message for milestone 1
-    uint8_t tmp[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
+    uint8_t msg1[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
     
-
-    if (sendto(clientSocket, tmp, sizeof(tmp), 0,
+    printf("Sending RHP Message: hello\n");
+    if (sendto(clientSocket, msg1, sizeof(msg1), 0,
             (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
         perror("sendto failed");
         return 0;
     }
-    // free(message);
     /* Receive message from server */
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
-
-    // printf("Received from server: %s\n", buffer);
-    printf("here\n");
-    printf("%d\n",buffer[0]);
-    printf("%u\n%u",(uint8_t)buffer[1],(uint8_t)buffer[2]);
-    fixed_checksum(buffer, nBytes);
+    displayMessage(buffer, nBytes);
 
 
-    unpackage_message(buffer, nBytes);
+    // unpackage_message(buffer, nBytes);
 
     close(clientSocket);
     return 0;
 }
 
-void fixed_checksum(char* buffer, int nBytes){
+
+void displayMessage(char* buffer, int nBytes){
+
+    printf("==================================\n");
+    printf("Message Recieved\n");
+    printf("    RHP Version: %d\n",buffer[0]);
+    printf("    commID: %u%u\n",(uint8_t)buffer[2],(uint8_t)buffer[1]);
+
+    uint8_t length = (uint8_t)buffer[3]>>1;
+    length = length<<1;
+    printf("    Length: %d\n", length);
+
+    uint8_t type = (uint8_t)buffer[3]&0b00000001;
+    printf("    Type: %d\n",type);
+
+    printPayload(buffer, length);
+
+    //check if message is buffered
+    int hasBuffer = 0;
+    if(length % 2 != 0){
+        hasBuffer = 1;
+    }
+
+    uint16_t messageChecksum = (uint8_t)buffer[4+length+hasBuffer]<<8 + (uint8_t)buffer[4+length+hasBuffer+1];
+    printf("    Message Checksum: %d\n", messageChecksum);
+
+
+
+    uint16_t checksum = fixed_checksum(buffer, nBytes);
+    printf("    Calculated Checksum: %d", checksum);
+
+
+
+    printf("\n==================================\n");
+}
+
+void printPayload(char* buffer, int length){
+    //known that message starts on buffer[4]
+    printf("    Payload: ");
+    for(int i = 0; i < length; i++){
+        printf("%c", buffer[4+i]);
+    }
+    printf("\n");
+}
+
+uint16_t fixed_checksum(char* buffer, int nBytes){
     uint16_t sum = 0;
     uint16_t pastSum = 0;
     for(int i = 0; i < nBytes-2; i+=2){
-        printf("%x %x\n", (uint8_t)buffer[i], (uint8_t)buffer[i+1]);
         sum += (uint8_t)buffer[i]<<8;
         sum += (uint8_t)buffer[i+1];
         if(sum < pastSum){
             sum += 1;
-            printf("plus1\n");
         }
-        // printf("%d\n\n",(uint16_t)sum);
         pastSum = sum;
     }
 
-
     sum = ~(uint16_t)sum;
-    printf("checksum: %d",(uint16_t)sum);
+    // printf("checksum: %d",(uint16_t)sum);
+    return sum;
 }
+
+
+
+
 
 char* package_message(char* message){
     return message;

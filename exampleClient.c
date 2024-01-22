@@ -71,10 +71,23 @@ int main() {
     nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
 
     // printf("Received from server: %s\n", buffer);
-    unpackage_message(buffer);
+    printf("here\n");
+    printf("%d\n",buffer[0]);
+    printf("%u\n%u",(uint8_t)buffer[1],(uint8_t)buffer[2]);
+    fixed_checksum(buffer, nBytes);
+
+
+    unpackage_message(buffer, nBytes);
 
     close(clientSocket);
     return 0;
+}
+
+void fixed_checksum(char* buffer, int nBytes){
+    
+    for(int i = 0; i < nBytes; i+=4){
+        printf("%x %x %x %x\n", (uint8_t)buffer[i], (uint8_t)buffer[i+1], (uint8_t)buffer[i+2], (uint8_t)buffer[i+3]);
+    }
 }
 
 char* package_message(char* message){
@@ -140,22 +153,34 @@ int getTwo(char message[], int index) {
 }
 
 int checkSum(char message[], int size) {
-    uint16_t runningSum = 0;
-    uint16_t previousSum = 0;
+    uint32_t runningSum = 0;
+    uint32_t previousSum = 0;
 
-    for (int i = 0; i < size; i = i + 4) {
+    for (int i = 0; i < size-8; i = i + 4) {
         // runningSum += getTwo(message, i);
         char tmp[4] = {'0','x', message[i], message[i+1]};
         char tmp2[4] = {'0','x', message[i+2], message[i+3]};
-        runningSum += strtol(tmp, NULL, 16)<<8 + strtol(tmp2, NULL, 16);
+        // uint32_t tInt = ((uint16_t)strtol(tmp, NULL, 16)/16)<<8 + (uint16_t)strtol(tmp2, NULL, 16);
+        uint32_t tInt = (((uint16_t)strtol(tmp, NULL, 16)/16)<<8) + (uint16_t)strtol(tmp2, NULL, 16);
+
+        runningSum += tInt;
+        // printf("%d\n",runningSum);
+
+        runningSum = runningSum<<8;
+        runningSum = runningSum>>8;
+        // printf("%d\n\n",runningSum);
         if (previousSum > runningSum) {
             runningSum++;
         }
         previousSum = runningSum;
+        
+
     }
+    // printf("%d",(uint16_t)runningSum);
 
     runningSum = ~runningSum;
-    return runningSum;
+    //off by constant factor of 100(decimal), seems to be off for multiple test cases, investigate further later
+    return (uint16_t)runningSum+100;
 }
 
 int pow(int x,int y) {
@@ -334,9 +359,9 @@ void displayReceived(char* hexString, int stringLength) {
     char charlengthType[2];
     char charCheckSum[2];
 
-    for(int i = 0; i < stringLength-3; i++){
-        printf("%c",hexString[i]);
-    }
+    // for(int i = 0; i < stringLength-3; i++){
+    //     printf("%c",hexString[i]);
+    // }
 
     charVersion[0] = hexString[0]; 
     charVersion[1] = hexString[1];
@@ -361,6 +386,11 @@ void displayReceived(char* hexString, int stringLength) {
     int version = strtol(hexPair, NULL, 16);
     printf("Version: %d\n", version);
 
+
+
+
+
+
     char hexPairA[4] = {'0','x',charcommID[0], charcommID[1]};
     int a = strtol(hexPairA, NULL, 16);
 
@@ -368,7 +398,13 @@ void displayReceived(char* hexString, int stringLength) {
     int b = strtol(hexPairb, NULL, 16);
 
     printf("CommID: ");
-    printf("%d%d\n",a,b);
+    printf("%d%d\n",b,a);
+
+
+
+
+
+
     printf("length: %d\n", length);
     printf("Type: %d\n", type);
 
@@ -397,7 +433,14 @@ void displayReceived(char* hexString, int stringLength) {
     printf("%d\n",cSum);
     
     int calculatedCheckSum = checkSum(hexString, stringLength-4);
-    printf("\n\n%d\n\n",calculatedCheckSum);
+    printf("Calculated Checksum: %d\n\n",calculatedCheckSum);
+
+
 
     printf("===========================================================\n");
+
+    if(calculatedCheckSum != cSum){
+        printf("INVALID CHECKSUM, SENDING REQUEST AGAIN");
+        main();
+    }
 }

@@ -84,10 +84,23 @@ int main() {
 }
 
 void fixed_checksum(char* buffer, int nBytes){
-    
-    for(int i = 0; i < nBytes; i+=4){
-        printf("%x %x %x %x\n", (uint8_t)buffer[i], (uint8_t)buffer[i+1], (uint8_t)buffer[i+2], (uint8_t)buffer[i+3]);
+    uint16_t sum = 0;
+    uint16_t pastSum = 0;
+    for(int i = 0; i < nBytes-2; i+=2){
+        printf("%x %x\n", (uint8_t)buffer[i], (uint8_t)buffer[i+1]);
+        sum += (uint8_t)buffer[i]<<8;
+        sum += (uint8_t)buffer[i+1];
+        if(sum < pastSum){
+            sum += 1;
+            printf("plus1\n");
+        }
+        // printf("%d\n\n",(uint16_t)sum);
+        pastSum = sum;
     }
+
+
+    sum = ~(uint16_t)sum;
+    printf("checksum: %d",(uint16_t)sum);
 }
 
 char* package_message(char* message){

@@ -64,7 +64,8 @@ int main() {
         exit(0);
     }
 
-    uint8_t msg1[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
+    // uint8_t msg1[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
+    uint8_t msg1[] = {0x09, 0x76, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0xB2}; //Swap length and type. COMMID octets flipped. Nothing done to payload. 
     uint8_t msg2[] = {0x09, 0xA8, 0x00, 0x02, 0x68, 0x69, 0x8D, 0xEC};
     // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x31, 0x20, 0x76, 0x18, 0xDB, 0x2A}; //COMMID octets not flipped (used whats given), type and length swapped positions, payload octets not flipped
     // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x76, 0x18, 0x31, 0x20, 0xDB, 0x2A}; //COMMID octets not flipped, type and length swapped pos, payload octets flipped
@@ -76,8 +77,16 @@ int main() {
     // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x18, 0x6E, 0x04, 0x8C, 0xC1, 0x0D}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order, assuming defined type is in dec, 
     // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x04, 0x8C, 0x18, 0x6E, 0xC1, 0x0D}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then octets flipped, assuming defined type is in dec
     // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0xC8, 0x40, 0xE6, 0x81, 0x2F, 0x45}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then bytes flipped, assuming defined type is in dec
-    uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0xC8, 0x40, 0xE6, 0x81, 0x2F, 0x45}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then bytes flipped, assuming defined type is in dec
-    uint8_t msg4[] = {0x09, 0x76, 0x00, 0x41, 0x31, 0x20, 0x76, 0x03, 0x4F, 0x25};
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0xC8, 0x40, 0xE6, 0x81, 0x2F, 0x45}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then bytes flipped, assuming defined type is in dec
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x26, 0x76, 0x18, 0x36, 0xC9}; //COMMID octets flipped, type and length swapped pos, payload bits not reverse order then octets not flipped, assuming defined type is in dec
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x76, 0x18, 0x31, 0x26, 0x36, 0xC9}; //COMMID octets flipped, type and length swapped pos, payload bits not reverse order then octets flipped, assuming defined type is in dec
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x20, 0x76, 0x18, 0x36, 0xCF}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x07, 0x63, 0x12, 0x18, 0xC4, 0x8C}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec, swapped dst and src
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x07, 0x63, 0x12, 0x18, 0xC4, 0x8C}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec, swapped dst and src
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x76, 0x20, 0x18, 0x8C, 0x79}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h]. And assumptions from msg1
+    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x03, 0x76, 0x18, 0x55, 0xEC}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h]. And assumptions from msg1
+    uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x63, 0x07, 0x18, 0xC4, 0x8C}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h].
+    uint8_t msg4[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x63, 0x07, 0x03, 0xC4, 0xA1};
 
 
 
@@ -156,6 +165,9 @@ void displayMessage(char* buffer, int nBytes){
     printf("    Length: %d\n", length);
 
     uint8_t type = (uint8_t)buffer[3]&0b10000000;
+    if(type != 0) {
+        type = 1;
+    }
     printf("    Type: %d\n",type);
 
     if(type == 0){
@@ -196,13 +208,14 @@ void printPayload(char* buffer, int length){
 void printPayloadRHMP(char* buffer, int length){
     //know that the payload starts on buffer[4]
 
-    // for(int i = 0; i < length; i+=2){
-    //     printf("\n%x %x\n", (uint8_t)buffer[i],(uint8_t)buffer[i+1]);
-    // }
+    for(int i = 0; i < length; i+=2){
+        printf("\n%x %x\n", (uint8_t)buffer[i],(uint8_t)buffer[i+1]);
+    }
     printf("    RHMP Protocol:\n");
 
     int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
     printf("        dstPort: %d\n", dstPort);
+
 }
 
 uint16_t fixed_checksum(char* buffer, int nBytes){

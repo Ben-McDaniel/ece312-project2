@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 #define SERVER "137.112.38.47"
 #define PORT 2324
@@ -64,31 +65,10 @@ int main() {
         exit(0);
     }
 
-    // uint8_t msg1[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
-    uint8_t msg1[] = {0x09, 0x76, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0xB2}; //Swap length and type. COMMID octets flipped. Nothing done to payload. 
+    uint8_t msg1[] = {0x09, 0xA8, 0x00, 0x05, 0x68, 0x65, 0x6C, 0x6C, 0x6F, 0x00, 0xB2, 0x80};
     uint8_t msg2[] = {0x09, 0xA8, 0x00, 0x02, 0x68, 0x69, 0x8D, 0xEC};
-    // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x31, 0x20, 0x76, 0x18, 0xDB, 0x2A}; //COMMID octets not flipped (used whats given), type and length swapped positions, payload octets not flipped
-    // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x76, 0x18, 0x31, 0x20, 0xDB, 0x2A}; //COMMID octets not flipped, type and length swapped pos, payload octets flipped
-    // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x81, 0x67, 0x02, 0x13, 0xFE, 0xE8}; //COMMID octets not flipped, type and length swapped pos, payload bytes flipped
-    // uint8_t msg3[] = {0x09, 0x18, 0x74, 0x84, 0x81, 0x67, 0x02, 0x13, 0xFE, 0xE8}; //COMMID octets not flipped, type and length swapped pos, payload bytes flipped
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x20, 0x76, 0x18, 0x36, 0xCF}; //COMMID octets flipped, type and length swapped pos, payload octets not flipped
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x76, 0x18, 0x31, 0x20, 0x36, 0xCF}; //COMMID octets flipped, type and length swapped pos, payload octets flipped
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x76, 0x24, 0x31, 0x20, 0x36, 0xC3}; //COMMID octets flipped, type and length swapped pos, payload octets flipped, assuming defined type is in hex
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x18, 0x6E, 0x04, 0x8C, 0xC1, 0x0D}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order, assuming defined type is in dec, 
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x04, 0x8C, 0x18, 0x6E, 0xC1, 0x0D}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then octets flipped, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0xC8, 0x40, 0xE6, 0x81, 0x2F, 0x45}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then bytes flipped, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0xC8, 0x40, 0xE6, 0x81, 0x2F, 0x45}; //COMMID octets flipped, type and length swapped pos, payload bits reverse order then bytes flipped, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x26, 0x76, 0x18, 0x36, 0xC9}; //COMMID octets flipped, type and length swapped pos, payload bits not reverse order then octets not flipped, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x76, 0x18, 0x31, 0x26, 0x36, 0xC9}; //COMMID octets flipped, type and length swapped pos, payload bits not reverse order then octets flipped, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x20, 0x76, 0x18, 0x36, 0xCF}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x07, 0x63, 0x12, 0x18, 0xC4, 0x8C}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec, swapped dst and src
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x07, 0x63, 0x12, 0x18, 0xC4, 0x8C}; //COMMID octets flipped, type and length swapped pos, payload left normal, assuming defined type is in dec, swapped dst and src
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x31, 0x76, 0x20, 0x18, 0x8C, 0x79}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h]. And assumptions from msg1
-    // uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x03, 0x76, 0x18, 0x55, 0xEC}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h]. And assumptions from msg1
     uint8_t msg3[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x63, 0x07, 0x18, 0xC4, 0x8C}; //In RHMP, instead of [a, b, c, d, e, f, g, h], does [b, c, f, a, d, e, g, h].
     uint8_t msg4[] = {0x09, 0x74, 0x18, 0x84, 0x12, 0x63, 0x07, 0x03, 0xC4, 0xA1};
-
-
 
     //iterate through messages with each main call
     if(messageCount == 1){
@@ -207,14 +187,34 @@ void printPayload(char* buffer, int length){
 
 void printPayloadRHMP(char* buffer, int length){
     //know that the payload starts on buffer[4]
+    printf("  RHMP Protocol:\n");
 
-    for(int i = 0; i < length; i+=2){
-        printf("\n%x %x\n", (uint8_t)buffer[i],(uint8_t)buffer[i+1]);
+    uint8_t type = (uint8_t)buffer[7];
+    printf("    RHMP Type: %d\n", type);
+
+    printf("    Payload: ");
+    if(type == 40) { //Priting a text response
+        printf("Received Text:");
+        for(int i = 9; i < length+4; i+=2){
+            printf("%c%c", (uint8_t)buffer[i],(uint8_t)buffer[i+1]);
+        }
+        printf("\n");
+    } else if(type == 5) { //Printing the ID (in hex and decimal)
+        // uint32_t Id = ((uint32_t)buffer[9])<<24 + ((uint32_t)buffer[10])<<16 + ((uint32_t)buffer[11])<<8 + ((uint32_t)buffer[12]);
+        uint32_t Id = (uint32_t)((uint8_t)buffer[9]*pow(2,0) + (uint8_t)buffer[10]*pow(2,8) + (uint8_t)buffer[11]*pow(2,16) + (uint8_t)buffer[12]*pow(2, 24));
+        printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
+        printf("             Received ID (Dec): %d\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
+        printf("\nAHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
+        printf("Buffer 9:  %x\n", buffer[9]);
+        printf("Buffer 10: %x\n", buffer[10]);
+        printf("Buffer 11: %x\n", buffer[11]);
+        printf("Buffer 12: %x\n", buffer[12]);
+        printf("ABBBBBBBBBBBBBBBBBBBBBBBBBBB\n\n");
     }
-    printf("    RHMP Protocol:\n");
+
 
     int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
-    printf("        dstPort: %d\n", dstPort);
+    printf("    dstPort: %d\n", dstPort);
 
 }
 

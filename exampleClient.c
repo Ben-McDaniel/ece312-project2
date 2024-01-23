@@ -136,15 +136,19 @@ int main() {
     return 0;
 }
 
+/*
+* Used to increment the total number of messages successfully sent
+*/
 void messageSendSuccess(){
     messageCount += 1;
 }
 
+/*
+* Handles parsong through the given message and displaying all of the information about it.
+* Will display all of the relevent information for the message such as the payload, RHP Version,
+* commID, among other things.
+*/
 void displayMessage(char* buffer, int nBytes){
-    // for(int i = 0; i < nBytes; i+=2){
-    //     printf("\n%x %x\n", (uint8_t)buffer[i],(uint8_t)buffer[i+1]);
-
-    // }
     printf("==================================\n");
     printf("Message Recieved\n");
     printf("    RHP Version: %d\n",buffer[0]);
@@ -228,18 +232,19 @@ void printPayloadRHMP(char* buffer, int length){
         }
         printf("\n");
     } else if(type == 5) { //Printing the ID (in hex and decimal)
-        // uint32_t Id = ((uint32_t)buffer[9])<<24 + ((uint32_t)buffer[10])<<16 + ((uint32_t)buffer[11])<<8 + ((uint32_t)buffer[12]);
         uint32_t Id = (uint8_t)buffer[8]<<0;
         Id += (uint8_t)buffer[9]<<8;
         Id += (uint8_t)buffer[10]<<16;
         Id += (uint8_t)buffer[11]<<24;
-        // printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
-        printf("             Received ID (Dec): %u\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
-printf("             Received ID (Hex): 0x%x\n", Id);
+        printf("      Received ID (Dec): %u\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
+        printf("      Received ID (Hex): 0x%x\n", Id);
     }
 
 }
 
+/*
+* Returns the internet checksum for the given message
+*/
 uint16_t fixed_checksum(char* buffer, int nBytes){
     uint16_t sum = 0;
     uint16_t pastSum = 0;

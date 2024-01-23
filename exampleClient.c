@@ -188,6 +188,11 @@ void displayMessage(char* buffer, int nBytes){
     main();
 }
 
+
+/*
+* Given a received RHP message, this function will parse thorugh it and print the payload contained within it.
+* It is assumed that this payload is not a RHMP, and rather a string.
+*/
 void printPayload(char* buffer, int length){
     //known that message starts on buffer[4]
     printf("    Payload: ");
@@ -197,6 +202,10 @@ void printPayload(char* buffer, int length){
     printf("\n");
 }
 
+/*
+* Given that a RHMP message is received, this function, given a char[<Hex Octets>] and the size of said message, will parse through the
+* message, formating the received data into more legible data, and printing this out in a reasonable and readable way.
+*/
 void printPayloadRHMP(char* buffer, int length){
     //know that the payload starts on buffer[4]
     printf("  RHMP Protocol:\n");
@@ -205,6 +214,8 @@ void printPayloadRHMP(char* buffer, int length){
     int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
     printf("    dstPort: %d\n", dstPort);
 
+    int srcPort = ((buffer[5]&0b00001111)<<4) + (buffer[6]);
+    printf("    srcPort: %d\n", srcPort);
 
     uint8_t type = (uint8_t)buffer[7];
     printf("    RHMP Type: %d\n", type);
@@ -224,7 +235,7 @@ void printPayloadRHMP(char* buffer, int length){
         Id += (uint8_t)buffer[11]<<24;
         // printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
         printf("             Received ID (Dec): %u\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
-        printf("             Received ID (Hex): 0x%x\n", Id);
+printf("             Received ID (Hex): 0x%x\n", Id);
     }
 
 }

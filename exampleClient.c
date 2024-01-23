@@ -205,6 +205,7 @@ void printPayloadRHMP(char* buffer, int length){
     int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
     printf("    dstPort: %d\n", dstPort);
 
+
     uint8_t type = (uint8_t)buffer[7];
     printf("    RHMP Type: %d\n", type);
 
@@ -223,16 +224,8 @@ void printPayloadRHMP(char* buffer, int length){
         Id += (uint8_t)buffer[11]<<24;
         // printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
         printf("             Received ID (Dec): %u\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
-        // printf("\nAHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
-        // printf("Buffer 9:  %x\n", buffer[9]);
-        // printf("Buffer 10: %x\n", buffer[10]);
-        // printf("Buffer 11: %x\n", buffer[11]);
-        // printf("Buffer 12: %x\n", buffer[12]);
-        // printf("ABBBBBBBBBBBBBBBBBBBBBBBBBBB\n\n");
+        printf("             Received ID (Hex): 0x%x\n", Id);
     }
-
-
-
 
 }
 

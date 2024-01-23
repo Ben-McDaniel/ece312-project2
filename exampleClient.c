@@ -1,4 +1,16 @@
-/************* UDP CLIENT CODE *******************/
+// /************* ECE312 Project 2 Milestone 2 *******************/
+
+// By: Ben McDaniel and Jacob Teaney
+
+// Our approach to this code is to establish the 4 messages as character 
+// arrays storing octets as two hex digits. We then send these using the
+// bind and sendto example code provided in the example. Our received
+// message is decoded using a combination of bitwise operations, including
+// shifting and using targeted bitwise ands to extract bits based on the 
+// given protocol
+
+// /************* ECE312 Project 2 Milestone 2 *******************/
+
 
 #include <stdio.h>
 #include <sys/socket.h>

@@ -189,10 +189,14 @@ void printPayloadRHMP(char* buffer, int length){
     //know that the payload starts on buffer[4]
     printf("  RHMP Protocol:\n");
 
+
+    int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
+    printf("    dstPort: %d\n", dstPort);
+
     uint8_t type = (uint8_t)buffer[7];
     printf("    RHMP Type: %d\n", type);
 
-    printf("    Payload: ");
+    printf("    Payload: \n");
     if(type == 40) { //Priting a text response
         printf("Received Text:");
         for(int i = 9; i < length+4; i+=2){
@@ -201,20 +205,22 @@ void printPayloadRHMP(char* buffer, int length){
         printf("\n");
     } else if(type == 5) { //Printing the ID (in hex and decimal)
         // uint32_t Id = ((uint32_t)buffer[9])<<24 + ((uint32_t)buffer[10])<<16 + ((uint32_t)buffer[11])<<8 + ((uint32_t)buffer[12]);
-        uint32_t Id = (uint32_t)((uint8_t)buffer[9]*pow(2,0) + (uint8_t)buffer[10]*pow(2,8) + (uint8_t)buffer[11]*pow(2,16) + (uint8_t)buffer[12]*pow(2, 24));
-        printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
-        printf("             Received ID (Dec): %d\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
-        printf("\nAHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
-        printf("Buffer 9:  %x\n", buffer[9]);
-        printf("Buffer 10: %x\n", buffer[10]);
-        printf("Buffer 11: %x\n", buffer[11]);
-        printf("Buffer 12: %x\n", buffer[12]);
-        printf("ABBBBBBBBBBBBBBBBBBBBBBBBBBB\n\n");
+        uint32_t Id = (uint8_t)buffer[8]<<0;
+        Id += (uint8_t)buffer[9]<<8;
+        Id += (uint8_t)buffer[10]<<16;
+        Id += (uint8_t)buffer[11]<<24;
+        // printf("Received ID (Hex): %x, %x, %x, %x\n", (uint8_t)buffer[10], (uint8_t)buffer[11], (uint8_t)buffer[12], (uint8_t)buffer[12]);
+        printf("             Received ID (Dec): %u\n", Id); //Should be divisible by our ID numbers (or the one attached with the message sent)
+        // printf("\nAHHHHHHHHHHHHHHHHHHHHHHHHHHH\n");
+        // printf("Buffer 9:  %x\n", buffer[9]);
+        // printf("Buffer 10: %x\n", buffer[10]);
+        // printf("Buffer 11: %x\n", buffer[11]);
+        // printf("Buffer 12: %x\n", buffer[12]);
+        // printf("ABBBBBBBBBBBBBBBBBBBBBBBBBBB\n\n");
     }
 
 
-    int dstPort = (buffer[4]<<4) + (buffer[5]>>4);
-    printf("    dstPort: %d\n", dstPort);
+
 
 }
 
